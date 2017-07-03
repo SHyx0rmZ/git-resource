@@ -28,6 +28,7 @@ configure_credentials $payload
 
 uri=$(jq -r '.source.uri // ""' < $payload)
 branch=$(jq -r '.source.branch // ""' < $payload)
+branch_file=$(jq -r '.params.branch_file // ""' < $payload)
 git_config_payload=$(jq -r '.source.git_config // []' < $payload)
 repository=$(jq -r '.params.repository // ""' < $payload)
 tag=$(jq -r '.params.tag // ""' < $payload)
@@ -40,6 +41,10 @@ annotation_file=$(jq -r '.params.annotate // ""' < $payload)
 notes_file=$(jq -r '.params.notes // ""' < $payload)
 
 configure_git_global "${git_config_payload}"
+
+if [ -n "$branch_file" ] && [ -f "${source}/${branch_file}" ]; then
+  branch="$(cat ${source}/${branch_file})"
+fi
 
 if [ -z "$uri" ]; then
   echo "invalid payload (missing uri)"
